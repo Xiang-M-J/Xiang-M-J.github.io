@@ -1,0 +1,53 @@
+html{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    background: url("images/bg.jpg") no-repeat center center fixed;
+    /*兼容浏览器版本*/
+    -webkit-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+a{
+    text-decoration: none;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: 2rem;
+    line-height: 5rem;
+    background: linear-gradient(90deg,#03a9f4,#f441a5,#ffeb3b,#03a9f3);
+    background-size: 400%;
+    width: 18rem;
+    height: 5rem;
+    color: #ffffff;
+    text-align: center;
+    border-radius:2.5rem;
+    z-index: 1;
+}
+a::before{
+    content: "";
+    position: absolute;
+    left: -5px;
+    right: -5px;
+    top: -5px;
+    bottom: -5px;
+    background: linear-gradient(90deg,#03a9f4,#f441a5,#ffeb3b,#03a9f3);
+    background-size: 400%;
+    border-radius: 3.2rem;
+    filter: blur(1.25rem);
+    z-index: -1;
+}
+a:hover::before{
+    animation: sun 8s infinite;
+}
+a:hover{
+    animation: sun 8s infinite;
+}
+@keyframes sun {
+    100%{
+        background-position: -400% 0;
+    }
+}
