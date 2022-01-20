@@ -26,5 +26,31 @@
     <a style="top: 40%" href="">占位</a>
     <a style="top: 60%" href="">占位</a>
     <a style="top: 80%" href="">占位</a>
+    <script>
+        const os = function () {
+            const ua = navigator.userAgent,
+                isWindowsPhone = /(?:Windows Phone)/.test(ua),
+                isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+                isAndroid = /(?:Android)/.test(ua),
+                isFireFox = /(?:Firefox)/.test(ua),
+                isChrome = /(?:Chrome|CriOS)/.test(ua),
+                isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),
+                isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+                isPc = !isPhone && !isAndroid && !isSymbian;
+            return {
+                isTablet: isTablet,
+                isPhone: isPhone,
+                isAndroid: isAndroid,
+                isPc: isPc
+            };
+        }();
+        if (os.isAndroid || os.isPhone) {
+            const body = document.querySelector("body")
+            body.style.backgroundImage = 'url("images/bgM.jpg")'
+            body.style.backgroundRepeat = 'no-repeat'
+            body.style.backgroundPosition = "center";//设置背景图的位置
+            body.style.backgroundSize = "cover";
+        }
+    </script>
 </body>
 </html>
