@@ -21,6 +21,7 @@
 <!--    <meta name="HandheldFriendly" content="true" />-->
     <title>项敏捷的个人网站</title>
     <link rel="stylesheet" href="./layui/css/layui.css">
+    <link rel="icon" class="js-site-favicon" type="image/svg+xml" href="images/icon.svg">
     <style>
         body{padding:20px;}
     </style>
@@ -28,12 +29,68 @@
 <body>
 <ul class="layui-nav layui-bg-cyan">
     <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
-    <li class="layui-nav-item"><a href="happyNewYear/carGame/index.html">新年快乐</a></li>
-    <li class="layui-nav-item"><a href="">社区</a></li>
+    <li class="layui-nav-item"><a href="happyNewYear/index.html">新年快乐</a></li>
+    <li class="layui-nav-item"><a href="javascript:">敬请期待</a></li>
 </ul>
+<br>
+<br>
+<br>
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md7">
+            <div id="newYearProject">
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>2022年新年快乐项目开发过程</legend>
+                </fieldset>
+                <ul class="layui-timeline">
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">未放假时</h3>
+                            <p>发现了一个有意思的网站 <a target="_blank" href="https://bruno-simon.com/">bruno-simon</a></p>
+                        </div>
+                    </li>
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">2022年1月12日-2022年1月14日</h3>
+                            <p>学习<em>folio-2019</em>项目的内容，了解了该项目是如何运行的</p>
+                        </div>
+                    </li>
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">2022年1月14日-1月17日</h3>
+                            <p>修改folio-2019项目的代码来符合具体需求</p>
+                        </div>
+                    </li>
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">1月17日-1月20日</h3>
+                            <p>将修改好的项目和其它项目放在GithubPage上</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="layui-col-md1"><br></div>
+        <div class="layui-col-md4">
+            <div class="layui-inline" id="test-n1"></div>
+        </div>
+    </div>
+</div>
 <script src="./layui/layui.js"></script>
 <script>
-
+    layui.use('laydate', function() {
+        const laydate = layui.laydate;
+        //常规用
+        laydate.render({
+            elem: '#test-n1',
+            position: 'static',
+            calendar: true //是否开启公历重要节日
+        });
+    })
 </script>
 </body>
 </html>

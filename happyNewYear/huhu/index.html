@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>虎虎生威</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0"/>
+    <link rel="stylesheet" href="../../layui/css/layui.css">
+    <link rel="icon" class="js-site-favicon" type="image/svg+xml" href="images/icon.svg">
+    <style>
+        #tiger{
+            max-height: 100%;
+            margin: auto;
+            display: none;
+        }
+        #tigerMobile{
+            max-width: 100%;
+            margin: auto;
+            display: none;
+        }
+        #tiger img{
+            /*width: 100%;*/
+            max-height: 100%;
+        }
+        #tigerMobile img{
+            max-width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+<!--<br>-->
+<div class="layui-carousel" id="tiger">
+    <div carousel-item="">
+        <div><img alt="" src="images/tiger1.jpg"></div>
+        <div><img alt="" src="images/tiger2.jpg"></div>
+        <div><img alt="" src="images/tiger3.jpg"></div>
+        <div><img alt="" src="images/tiger4.jpg"></div>
+        <div><img alt="" src="images/tiger5.jpg"></div>
+        <div><img alt="" src="images/tiger6.jpg"></div>
+        <div><img alt="" src="images/tiger7.jpg"></div>
+    </div>
+</div>
+
+<div class="layui-carousel" id="tigerMobile">
+    <div carousel-item="">
+        <div><img alt="" src="images/tiger (1).jpg"></div>
+        <div><img alt="" src="images/tiger (2).jpg"></div>
+        <div><img alt="" src="images/tiger (3).jpg"></div>
+        <div><img alt="" src="images/tiger (4).jpg"></div>
+        <div><img alt="" src="images/tiger (5).jpg"></div>
+        <div><img alt="" src="images/tiger (6).jpg"></div>
+        <div><img alt="" src="images/tiger (7).jpg"></div>
+    </div>
+</div>
+
+
+
+<script src="../../layui/layui.js"></script>
+<script>
+    const os = function () {
+        const ua = navigator.userAgent,
+            isWindowsPhone = /(?:Windows Phone)/.test(ua),
+            isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+            isAndroid = /(?:Android)/.test(ua),
+            isFireFox = /(?:Firefox)/.test(ua),
+            isChrome = /(?:Chrome|CriOS)/.test(ua),
+            isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),
+            isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+            isPc = !isPhone && !isAndroid && !isSymbian;
+        return {
+            isTablet: isTablet,
+            isPhone: isPhone,
+            isAndroid: isAndroid,
+            isPc: isPc
+        };
+    }();
+    if (os.isAndroid || os.isPhone) {
+        document.querySelector("#tigerMobile").style.display = "block"
+        const carousel = layui.carousel
+            , form = layui.form;
+        const width = document.documentElement.clientWidth
+        const height = 960/(640/width)
+        carousel.render({
+            elem: '#tigerMobile'
+            ,width: '100%' //设置轮播图宽度
+            ,height: height //轮播图高度为图片高度
+            ,interval: 5000
+            ,indicator: 'inside'
+        });
+
+    }else{
+        document.querySelector("#tiger").style.display = "block"
+        const carousel = layui.carousel
+            , form = layui.form;
+
+        carousel.render({
+            elem: '#tiger'
+            ,width: '900px' //设置轮播图宽度
+            ,height: '600px' //轮播图高度为图片高度
+            // ,full: true
+            ,interval: 5000
+            ,indicator: 'inside'
+        });
+
+    }
+
+
+</script>
+</body>
+</html>
