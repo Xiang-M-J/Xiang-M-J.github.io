@@ -8,34 +8,38 @@
     <link rel="icon" class="js-site-favicon" type="image/svg+xml" href="images/icon.svg">
 </head>
 <body>
+    <div id="snow-container" class="container"></div>
+    <div id="title">新年快乐</div>
     <a style="top: 30%" href="3dCar/index.html">3d小车</a>
     <a style="top: 50%" href="fireworks/index.html">看烟花</a>
     <a style="top: 70%" href="huhu/index.html">虎虎生威</a>
-    <script>
-        const os = function () {
-            const ua = navigator.userAgent,
-                isWindowsPhone = /(?:Windows Phone)/.test(ua),
-                isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
-                isAndroid = /(?:Android)/.test(ua),
-                isFireFox = /(?:Firefox)/.test(ua),
-                isChrome = /(?:Chrome|CriOS)/.test(ua),
-                isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),
-                isPhone = /(?:iPhone)/.test(ua) && !isTablet,
-                isPc = !isPhone && !isAndroid && !isSymbian;
-            return {
-                isTablet: isTablet,
-                isPhone: isPhone,
-                isAndroid: isAndroid,
-                isPc: isPc
-            };
-        }();
-        if (os.isAndroid || os.isPhone) {
-            const body = document.querySelector("body")
-            body.style.backgroundImage = 'url("images/bgM.jpg")'
-            body.style.backgroundRepeat = 'no-repeat'
-            body.style.backgroundPosition = "center";//设置背景图的位置
-            body.style.backgroundSize = "cover";
-        }
-    </script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/snow.js"></script>
+<!--    <script>-->
+<!--        const os = function () {-->
+<!--            const ua = navigator.userAgent,-->
+<!--                isWindowsPhone = /(?:Windows Phone)/.test(ua),-->
+<!--                isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,-->
+<!--                isAndroid = /(?:Android)/.test(ua),-->
+<!--                isFireFox = /(?:Firefox)/.test(ua),-->
+<!--                isChrome = /(?:Chrome|CriOS)/.test(ua),-->
+<!--                isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox && /(?:Tablet)/.test(ua)),-->
+<!--                isPhone = /(?:iPhone)/.test(ua) && !isTablet,-->
+<!--                isPc = !isPhone && !isAndroid && !isSymbian;-->
+<!--            return {-->
+<!--                isTablet: isTablet,-->
+<!--                isPhone: isPhone,-->
+<!--                isAndroid: isAndroid,-->
+<!--                isPc: isPc-->
+<!--            };-->
+<!--        }();-->
+<!--        if (os.isAndroid || os.isPhone) {-->
+<!--            // const body = document.querySelector("body")-->
+<!--            // body.style.backgroundImage = ''-->
+<!--            // body.style.backgroundRepeat = 'no-repeat'-->
+<!--            // body.style.backgroundPosition = "center";//设置背景图的位置-->
+<!--            // body.style.backgroundSize = "cover";-->
+<!--        }-->
+<!--    </script>-->
 </body>
 </html>
