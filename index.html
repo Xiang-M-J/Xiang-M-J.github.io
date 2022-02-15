@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="./layui/css/layui.css">
     <link rel="icon" class="js-site-favicon" type="image/svg+xml" href="images/icon.svg">
     <style>
-        body{padding:20px;}
+        html, body{
+            height: 100%;
+            width: 100%;
+        }
     </style>
 </head>
-<body>
+<body id="my-background">
 <ul class="layui-nav layui-bg-cyan">
     <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
     <li class="layui-nav-item"><a href="happyNewYear/index.html">新年快乐</a></li>
@@ -37,22 +40,36 @@
                     <li class="layui-timeline-item">
                         <i class="layui-icon layui-timeline-axis"></i>
                         <div class="layui-timeline-content layui-text">
-                            <h3 class="layui-timeline-title">2022年1月12日-2022年1月14日</h3>
+                            <h3 class="layui-timeline-title">2022-01-12 ~ 01-14</h3>
                             <p>学习<em>folio-2019</em>项目的内容，了解了该项目是如何运行的</p>
                         </div>
                     </li>
                     <li class="layui-timeline-item">
                         <i class="layui-icon layui-timeline-axis"></i>
                         <div class="layui-timeline-content layui-text">
-                            <h3 class="layui-timeline-title">2022年1月14日-1月17日</h3>
+                            <h3 class="layui-timeline-title">2022-01-14 ~ 01-17</h3>
                             <p>修改folio-2019项目的代码来符合具体需求</p>
                         </div>
                     </li>
                     <li class="layui-timeline-item">
                         <i class="layui-icon layui-timeline-axis"></i>
                         <div class="layui-timeline-content layui-text">
-                            <h3 class="layui-timeline-title">1月17日-1月20日</h3>
+                            <h3 class="layui-timeline-title">2022-01-17 ~ 01-20</h3>
                             <p>将修改好的项目和其它项目放在GithubPage上</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div id="dynamicBackground">
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>给网页添加动态背景</legend>
+                </fieldset>
+                <ul class="layui-timeline">
+                    <li class="layui-timeline-item">
+                        <i class="layui-icon layui-timeline-axis"></i>
+                        <div class="layui-timeline-content layui-text">
+                            <h3 class="layui-timeline-title">2022-02-15</h3>
+                            <p>使用了<a href="https://github.com/tengbao/vanta" target="_blank">Vanta.js</a>给网站添加动态背景</p>
                         </div>
                     </li>
                 </ul>
@@ -60,20 +77,36 @@
         </div>
         <div class="layui-col-md1"><br></div>
         <div class="layui-col-md4">
-            <div class="layui-inline" id="test-n1"></div>
+            <div id="calender"></div>
         </div>
     </div>
 </div>
 <script src="./layui/layui.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
 <script>
+    VANTA.BIRDS({
+        el: "#my-background",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        backgroundColor: 0xffffff,
+        color1: 0xc05050,
+        color2: 0x7ccaf2,
+        backgroundAlpha: 0.6
+    })
     layui.use('laydate', function() {
         const laydate = layui.laydate;
         //常规用
         laydate.render({
-            elem: '#test-n1',
+            elem: '#calender',
             position: 'static',
             calendar: true //是否开启公历重要节日
+            ,theme: '#393D49'
         });
     })
 </script>
