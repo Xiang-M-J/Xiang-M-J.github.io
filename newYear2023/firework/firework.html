@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发射烟花</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.png" />
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+        $(function () {
+            const rand = function (rMi, rMa) {
+                return ~~((Math.random() * (rMa - rMi + 1)) + rMi);
+            };
+            const Fireworks = function () {
+                const self = this;
+                let flag = true;
+                let points=[];
+                const hitTest = function (x1, y1, w1, h1, x2, y2, w2, h2) {
+                    return !(x1 + w1 < x2 || x2 + w2 < x1 || y1 + h1 < y2 || y2 + h2 < y1);
+                };
+                window.requestAnimFrame = function () {
+                    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (a) {
+                        window.setTimeout(a, 1000/60)
+                    }
+                }();
+                self.init = function () {
+                    self.canvas = document.createElement('canvas');
+                    self.canvas.width = self.cw = $(window).innerWidth();
+                    self.canvas.height = self.ch = $(window).innerHeight();
+                    self.particles = [];
+                    self.partCount = 120;
+                    self.fireworks = [];
+                    self.mx = self.cw / 2;
+                    self.my = self.ch / 2;
+                    self.currentHue = 30;
+                    self.partSpeed = 3;
+                    self.partSpeedVariance = 8;
+                    self.partWind = 50;
+                    self.partFriction = 5;
+                    self.partGravity = 0.1;
+                    self.hueMin = 0;
+                    self.hueMax = 360;
+                    self.fworkSpeed = 10;
+                    self.fworkAccel = -1;
+                    self.hueVariance = 30;
+                    self.flickerDensity = 25;
+                    self.showShockwave = true;
+                    self.showTarget = false;
+                    self.clearAlpha = 25;
+                    if (self.canvas.width*self.canvas.height> 400000){
+                        self.starsNum = 200+Math.floor((self.canvas.width*self.canvas.height - 400000)/2000);
+                    }
+                    self.procedure = 0;
+                    self.pacAudio = new Audio("media/pacman.ogg");
+                    self.pacAudio.loop = true;
+                    self.bombAudio = new Audio("media/bomb.ogg");
+                    self.bombAudio.loop = false;
+                    self.audios = [];
+                    $(document.body).append(self.canvas);
+                    self.ctx = self.canvas.getContext('2d');
+                    self.ctx.lineCap = 'round';
+                    self.ctx.lineJoin = 'round';
+                    self.lineWidth = 1;
+                    self.setBaseSpeed();
+                    self.createStars();
+                    self.createMountain();
+                    self.setSpirits();
+                    self.bindEvents();
+                    // setTimeout(self.canvasLoop,1000);
+                    // self.canvasLoop();
+                    self.canvas.onselectstart = function () {
+                        return false;
+                    };
+                };
+
+                self.createParticles = function (x, y, hue) {
+                    let countdown = self.partCount;
+                    while (countdown--) {
+                        const newParticle = {
+                            x: x,
+                            y: y,
+                            coordLast: [
+                                {x: x, y: y},
+                                {x: x, y: y},
+                                {x: x, y: y}
+                            ],
+                            angle: rand(0, 360),
+                            speed: rand(((self.partSpeed - self.partSpeedVariance) <= 0) ? 1 : self.partSpeed - self.partSpeedVariance, (self.partSpeed + self.partSpeedVariance)),
+                            friction: 1 - self.partFriction / 100,
+                            gravity: self.partGravity / 2,
+                            hue: rand(hue - self.hueVariance, hue + self.hueVariance),
+                            brightness: rand(50, 80),
+                            alpha: rand(40, 100) / 100,
+                            decay: rand(10, 50) / 1000,
+                            wind: (rand(0, self.partWind) - (self.partWind / 2)) / 25,
+                            lineWidth: self.lineWidth
+                        };
+                        self.particles.push(newParticle);
+                    }
+                };
+
+                self.updateParticles = function () {
+                    let i = self.particles.length;
+                    while (i--) {
+                        const p = self.particles[i];
+                        const radians = p.angle * Math.PI / 180;
+                        const vx = Math.cos(radians) * p.speed;
+                        const vy = Math.sin(radians) * p.speed;
+                        p.speed *= p.friction;
+
+                        p.coordLast[2].x = p.coordLast[1].x;
+                        p.coordLast[2].y = p.coordLast[1].y;
+                        p.coordLast[1].x = p.coordLast[0].x;
+                        p.coordLast[1].y = p.coordLast[0].y;
+                        p.coordLast[0].x = p.x;
+                        p.coordLast[0].y = p.y;
+
+                        p.x += vx;
+                        p.y += vy;
+                        p.y += p.gravity;
+
+                        p.angle += p.wind;
+                        p.alpha -= p.decay;
+                        if (!hitTest(0, 0, self.cw, self.ch, p.x - p.radius, p.y - p.radius, p.radius * 2, p.radius * 2) || p.alpha < .05) {
+                            self.particles.splice(i, 1);
+                        }
+                    }
+                };
+
+                self.drawParticles = function () {
+                    let i = self.particles.length;
+                    while (i--) {
+                        const p = self.particles[i];
+                        const coordRand = (rand(1, 3) - 1);
+                        self.ctx.beginPath();
+                        self.ctx.moveTo(Math.round(p.coordLast[coordRand].x), Math.round(p.coordLast[coordRand].y));
+                        self.ctx.lineTo(Math.round(p.x), Math.round(p.y));
+                        self.ctx.closePath();
+                        self.ctx.strokeStyle = 'hsla(' + p.hue + ', 100%, ' + p.brightness + '%, ' + p.alpha + ')';
+                        self.ctx.stroke();
+                        if (self.flickerDensity > 0) {
+                            const inverseDensity = 50 - self.flickerDensity;
+                            if (rand(0, inverseDensity) === inverseDensity) {
+                                self.ctx.beginPath();
+                                self.ctx.arc(Math.round(p.x), Math.round(p.y), rand(p.lineWidth, p.lineWidth + 3) / 2, 0, Math.PI * 2, false)
+                                self.ctx.closePath();
+                                const randAlpha = rand(50, 100) / 100;
+                                self.ctx.fillStyle = 'hsla(' + p.hue + ', 100%, ' + p.brightness + '%, ' + randAlpha + ')';
+                                self.ctx.fill();
+                            }
+                        }
+                    }
+                };
+
+                self.createFireworks = function (startX, startY, targetX, targetY) {
+                    const newFirework = {
+                        x: startX,
+                        y: startY,
+                        startX: startX,
+                        startY: startY,
+                        hitX: false,
+                        hitY: false,
+                        coordLast: [
+                            {x: startX, y: startY},
+                            {x: startX, y: startY},
+                            {x: startX, y: startY}
+                        ],
+                        targetX: targetX,
+                        targetY: targetY,
+                        speed: self.fworkSpeed,
+                        angle: Math.atan2(targetY - startY, targetX - startX),
+                        shockwaveAngle: Math.atan2(targetY - startY, targetX - startX) + (90 * (Math.PI / 180)),
+                        acceleration: self.fworkAccel / 100,
+                        hue: self.currentHue,
+                        brightness: rand(80, 100),
+                        alpha: rand(50, 100) / 100,
+                        lineWidth: self.lineWidth
+                    };
+                    self.fireworks.push(newFirework);
+                };
+                self.setBaseSpeed = function () {
+                    if (self.canvas.height / self.canvas.width > 1.5 ){
+                        self.baseSpeed = 0.1;
+                    }else {
+                        self.baseSpeed = 0;
+                    }
+                }
+                self.updateFireworks = function () {
+                    let i = self.fireworks.length;
+                    let vx;
+                    let vy;
+                    while (i--) {
+                        const f = self.fireworks[i];
+                        self.ctx.lineWidth = f.lineWidth;
+                        vx = Math.cos(f.angle) * f.speed;
+                        vy = Math.sin(f.angle) * f.speed;
+                        f.speed *= 1 + f.acceleration;
+                        f.speed += self.baseSpeed;
+                        f.coordLast[2].x = f.coordLast[1].x;
+                        f.coordLast[2].y = f.coordLast[1].y;
+                        f.coordLast[1].x = f.coordLast[0].x;
+                        f.coordLast[1].y = f.coordLast[0].y;
+                        f.coordLast[0].x = f.x;
+                        f.coordLast[0].y = f.y;
+
+                        if (f.startX >= f.targetX) {
+                            if (f.x + vx <= f.targetX) {
+                                f.x = f.targetX;
+                                f.hitX = true;
+                            } else {
+                                f.x += vx;
+                            }
+                        } else {
+                            if (f.x + vx >= f.targetX) {
+                                f.x = f.targetX;
+                                f.hitX = true;
+                            } else {
+                                f.x += vx;
+                            }
+                        }
+
+                        if (f.startY >= f.targetY) {
+                            if (f.y + vy <= f.targetY) {
+                                f.y = f.targetY;
+                                f.hitY = true;
+                            } else {
+                                f.y += vy;
+                            }
+                        } else {
+                            if (f.y + vy >= f.targetY) {
+                                f.y = f.targetY;
+                                f.hitY = true;
+                            } else {
+                                f.y += vy;
+                            }
+                        }
+
+                        if (f.hitX && f.hitY) {
+                            self.createParticles(f.targetX, f.targetY, f.hue);
+                            self.fireworks.splice(i, 1);
+                            let audio = new Audio("media/shasha.ogg");
+                            audio.play();
+                        }
+                    }
+                };
+
+                self.drawFireworks = function () {
+                    let i = self.fireworks.length;
+                    self.ctx.globalCompositeOperation = 'lighter';
+                    while (i--) {
+                        const f = self.fireworks[i];
+                        self.ctx.lineWidth = f.lineWidth;
+                        const coordRand = (rand(1, 3) - 1);
+                        self.ctx.beginPath();
+                        self.ctx.moveTo(Math.round(f.coordLast[coordRand].x), Math.round(f.coordLast[coordRand].y));
+                        self.ctx.lineTo(Math.round(f.x), Math.round(f.y));
+                        self.ctx.closePath();
+                        self.ctx.strokeStyle = 'hsla(' + f.hue + ', 100%, ' + f.brightness + '%, ' + f.alpha + ')';
+                        self.ctx.stroke();
+                        if (self.showTarget) {
+                            self.ctx.save();
+                            self.ctx.beginPath();
+                            self.ctx.arc(Math.round(f.targetX), Math.round(f.targetY), rand(1, 8), 0, Math.PI * 2, false)
+                            self.ctx.closePath();
+                            self.ctx.lineWidth = 1;
+                            self.ctx.stroke();
+                            self.ctx.restore();
+                        }
+                        if (self.showShockwave) {
+                            self.ctx.save();
+                            self.ctx.translate(Math.round(f.x), Math.round(f.y));
+                            self.ctx.rotate(f.shockwaveAngle);
+                            self.ctx.beginPath();
+                            self.ctx.arc(0, 0, (f.speed / 5), 0, Math.PI, true);
+                            self.ctx.strokeStyle = 'hsla(' + f.hue + ', 100%, ' + f.brightness + '%, ' + rand(25, 60) / 100 + ')';
+                            self.ctx.lineWidth = f.lineWidth;
+                            self.ctx.stroke();
+                            self.ctx.restore();
+                        }
+                    }
+                };
+                self.bindEvents = function () {
+                    $(window).on('resize', function () {
+                        clearTimeout(self.timeout);
+                        self.timeout = setTimeout(function () {
+                            self.canvas.width = self.cw = $(window).innerWidth();
+                            self.canvas.height = self.ch = $(window).innerHeight();
+                            self.ctx.lineCap = 'round';
+                            self.ctx.lineJoin = 'round';
+                        }, 100);
+                        // console.log(self.canvas.width*self.canvas.height)
+                        if (self.canvas.width*self.canvas.height> 400000){
+                            self.starsNum = 200+Math.floor((self.canvas.width*self.canvas.height - 400000)/2000);
+                        }
+                        self.setBaseSpeed();
+                        self.createStars();
+                        self.createMountain();
+                        // self.setSpirits();
+                    });
+                    // $(self.canvas).on('mousedown', function (e) {
+                    //     self.mx = e.pageX - self.canvas.offsetLeft;
+                    //     self.my = e.pageY - self.canvas.offsetTop;
+                    //     self.currentHue = rand(self.hueMin, self.hueMax);
+                    //     self.createFireworks(self.cw / 2, self.ch, self.mx, self.my);
+                    //
+                    //     $(self.canvas).on('mousemove.fireworks', function (e) {
+                    //         self.mx = e.pageX - self.canvas.offsetLeft;
+                    //         self.my = e.pageY - self.canvas.offsetTop;
+                    //         self.currentHue = rand(self.hueMin, self.hueMax);
+                    //         self.createFireworks(self.cw / 2, self.ch, self.mx, self.my);
+                    //     });
+                    // });
+                    //
+                    // $(self.canvas).on('mouseup', function (e) {
+                    //     $(self.canvas).off('mousemove.fireworks');
+                    // });
+                }
+
+                window.onload = function (){
+                    // console.log("onload")
+                    self.autoPlay();
+                    // self.setSpirits();
+                    setTimeout(self.canvasLoop, 100);
+                    // self.drawSpirits1();
+                }
+                self.autoPlay = function () {
+                    if (self.procedure > 2){
+                        if (flag){
+                            let time = rand(1200,1500);
+                            self.timer = setTimeout(self.autoPlay, time);
+                        }else {
+                            clearTimeout(self.timer);
+                        }
+                        // if (self.procedure <= 2){
+                        //     clearTimeout(self.timer);
+                        // }
+                        let newWidth = $(window).innerWidth();
+                        let newHeight = $(window).innerHeight();
+                        let yMax = newHeight * 0.2, yMin = newHeight*0.4;
+                        self.my = rand(yMin,yMax);
+                        let y_ = newHeight - self.my;
+                        let xMax = y_ / 2.5 + newWidth/2 , xMin = newWidth/2 - y_ / 2.5;
+                        self.mx = rand(xMin, xMax);
+                        self.currentHue = rand(self.hueMin, self.hueMax);
+                        self.createFireworks(self.cw / 2, self.ch, self.mx, self.my);
+                        let audio = new Audio("./media/huxiao.ogg");
+                        audio.huxiao = true;
+                        self.audios.push(audio);
+                        // self.audio.play();
+                        self.oldFlag = flag;
+                    }
+                }
+                function check(x) {
+                    const p0 = (x / self.cal) | 0;
+                    const p1 = p0 + 1;
+                    const vx1 = (x - p0 * self.cal) / self.cal * points[p0];
+                    const vx2 = (x - p1 * self.cal) / self.cal * points[p1];
+                    let tx = (x - p0 * self.cal) / self.cal;
+                    tx = 6 * Math.pow(tx, 5) - 15 * Math.pow(tx, 4) + 10 * Math.pow(tx, 3);
+                    const y = (1 - tx) * vx1 + tx * vx2;
+                    return (y)
+                }
+                self.createMountain = function () {
+                    points = [];
+                    self.MountainCoords = [];
+                    let xMax = $(window).innerWidth();
+                    let yLim = $(window).innerHeight();
+                    self.cal = 200;
+                    for (let i = 0; i < (xMax / self.cal | 0) + 2; i++) {
+                        points.push(Math.random()) // [0,1]
+                    }
+                    for(let sx = 0;sx < xMax; sx++){
+                        let sy = check(sx)*yLim*0.4+yLim*0.75;
+                        self.MountainCoords.push([sx,sy]);
+                    }
+
+                    // let numOfPeak = rand(5,7);
+                    // let peaks = [];
+                    // let yMaxPeak = yLim * 0.25;
+                    // let yMinPeak = yLim * 0.15;
+                    // // let xSpan = rand(Math.round(xMax/5),Math.round(xMax/3));
+                    // let xBegin = Math.floor(xMax/70)*10;
+                    // for(let i=0;i<numOfPeak;i++){
+                    //     peaks.push(xBegin, rand(yMinPeak,yMaxPeak))
+                    //     let xSpan = rand(Math.round(xMax/7),Math.round(xMax/5));
+                    //     xBegin += xSpan;
+                    // }
+                    // let
+                    //
+                    // for(let i = 0;i < count; i++){
+                    //     let y = rand(0, yMax);
+                    //     y = y/yMax;
+                    //     y = 1/(1+0.95/y);
+                    //     self.MountainCoords.push([i*8,yLim * 0.8 - y*yMax]);
+                    // }
+                }
+                self.drawMountain = function () {
+                    let len = self.MountainCoords.length;
+                    for (let i = 0; i<len-1;i++){
+                        self.ctx.beginPath();
+                        self.ctx.moveTo(self.MountainCoords[i][0],self.MountainCoords[i][1]);
+                        self.ctx.lineTo(self.MountainCoords[i+1][0], self.MountainCoords[i+1][1]);
+                        self.ctx.strokeStyle = 'rgb(5,119,72)';
+                        self.ctx.lineWidth = 2;
+                        self.ctx.stroke();
+                        // self.ctx.globalCompositeOperation = 'source-over';
+                        self.ctx.clearRect(self.MountainCoords[i][0],self.MountainCoords[i][1],1,$(window).innerHeight()-self.MountainCoords[i][1]);
+                        self.ctx.rect(self.MountainCoords[i][0],self.MountainCoords[i][1],1,$(window).innerHeight()-self.MountainCoords[i][1]);
+                        self.ctx.fillStyle = "rgb(5,119,72)";
+                        self.ctx.fill();
+                        self.ctx.closePath();
+                    }
+                }
+                self.setSpirits = function () {
+                    let index = rand(1,6);
+                    self.img1 = document.getElementById(`ghost${index}`);
+                    self.img2 = document.getElementById("fireWorkBase");
+                    let mul = self.canvas.width / self.img1.width;
+                    self.img1Scale = self.img2Scale = 4/mul;
+                    self.originImg2Scale = self.img2Scale;
+                    if (self.canvas.height/self.canvas.width > 1.5) {
+                        self.img1Scale*=2;
+                        self.img2Scale*=2;
+                    }
+                    self.img1Begin = [20,self.canvas.height - self.img1.height*self.img1Scale - 120];
+                    self.img2Begin = [self.img1Begin[0] + self.img1.width*self.img1Scale, self.img1Begin[1]-20];
+                }
+                self.drawSpirits1 = function () {
+                    if (self.img2Begin[0]<(self.canvas.width-self.img2.width)/2){
+                        self.ctx.globalCompositeOperation = "source-over"
+                        self.ctx.drawImage(self.img1, //规定要使用的图像、画布或视频。
+                            0, 0, //开始剪切的 x 坐标位置。
+                            self.img1.width, self.img1.height,  //被剪切图像的高度。
+                            self.img1Begin[0], self.img1Begin[1],//在画布上放置图像的 x 、y坐标位置。
+                            self.img1.width * self.img1Scale, self.img1.height * self.img1Scale //要使用的图像的宽度、高度
+                        );
+                        self.ctx.drawImage(self.img2, //规定要使用的图像、画布或视频。
+                            0, 0, //开始剪切的 x 坐标位置。
+                            self.img2.width, self.img2.height,  //被剪切图像的高度。
+                            self.img2Begin[0], self.img2Begin[1],//在画布上放置图像的 x 、y坐标位置。
+                            self.img2.width * self.img2Scale, self.img2.height * self.img2Scale //要使用的图像的宽度、高度
+                        );
+                        self.img1Begin[0] += 2;
+                        self.img2Begin[0] += 2;
+                    }else {
+                        self.procedure = 1;
+                    }
+                }
+                self.drawSpirits2 = function () {
+                    if (self.img1Begin[0]>-100){
+                        self.ctx.globalCompositeOperation = "source-over"
+                        self.ctx.drawImage(self.img1, //规定要使用的图像、画布或视频。
+                            0, 0, //开始剪切的 x 坐标位置。
+                            self.img1.width, self.img1.height,  //被剪切图像的高度。
+                            self.img1Begin[0], self.img1Begin[1],//在画布上放置图像的 x 、y坐标位置。
+                            self.img1.width * self.img1Scale, self.img1.height * self.img1Scale //要使用的图像的宽度、高度
+                        );
+                        self.ctx.drawImage(self.img2, //规定要使用的图像、画布或视频。
+                            0, 0, //开始剪切的 x 坐标位置。
+                            self.img2.width, self.img2.height,  //被剪切图像的高度。
+                            self.img2Begin[0], self.img2Begin[1],//在画布上放置图像的 x 、y坐标位置。
+                            self.img2.width * self.img2Scale, self.img2.height * self.img2Scale //要使用的图像的宽度、高度
+                        );
+                        self.img1Begin[0] -= 4;
+                    }else {
+                        self.procedure = 2;
+                    }
+                }
+                self.drawSpirits3 = function () {
+                    if (self.img2Scale / self.originImg2Scale <= 1.8){
+                        self.ctx.globalCompositeOperation = "source-over";
+                        self.img2Scale *= 1.02;
+                        self.ctx.drawImage(self.img2, //规定要使用的图像、画布或视频。
+                            0, 0, //开始剪切的 x 坐标位置。
+                            self.img2.width, self.img2.height,  //被剪切图像的高度。
+                            self.img2Begin[0]-(self.img2.width * (self.img2Scale-self.originImg2Scale))/2, self.img2Begin[1]-self.img2.height * (self.img2Scale-self.originImg2Scale),//在画布上放置图像的 x 、y坐标位置。
+                            self.img2.width * self.img2Scale, self.img2.height * self.img2Scale //要使用的图像的宽度、高度
+                        );
+                    }else {
+                        self.bombAudio.play();
+                        self.procedure = 3;
+                    }
+                }
+                self.createStars = function () {
+                    self.starsCoord = [];
+                    let xMax = $(window).innerWidth(), xMin = 0;
+                    let yMax = $(window).innerHeight()*0.6, yMin = 0;
+                    for (let i = 0; i<self.starsNum;i++){
+                        let x = rand(xMin, xMax);
+                        let y = rand(yMin, yMax);
+                        let radius = Math.round((Math.random()*50+30))/100;
+                        self.starsCoord.push([x,y,radius]);
+                    }
+                }
+                self.playSound = function () {
+                    if (self.procedure === 0 || self.procedure === 1){
+                        self.pacAudio.play();
+                    }else if(self.procedure === 2){
+                        self.pacAudio.pause();
+
+                    }
+                    else if (self.procedure > 2){
+
+                        while (self.audios.length > 0){
+                            let audio = self.audios.pop()
+                            audio.play()
+                        }
+                    }
+
+                }
+                self.drawStars = function () {
+                    for (let i = 0; i<self.starsNum; i++){
+                        self.ctx.beginPath();//开始绘制
+                        self.ctx.arc(self.starsCoord[i][0],self.starsCoord[i][1],self.starsCoord[i][2],0,2*Math.PI);//arc 的意思是“弧”
+                        self.ctx.fillStyle="#e9e7ef";//设置填充颜色
+                        self.ctx.fill();//开始填充
+                        // ctx.strokeStyle="blue";//将线条颜色设置为蓝色
+                        // ctx.stroke();//stroke() 方法默认颜色是黑色（如果没有上面一行，则会是黑色）。
+                    }
+                }
+                self.StateF = function () {
+                    flag = document.visibilityState !== "hidden";
+                    if (!self.oldFlag && flag){
+                        self.autoPlay();
+                    }
+                }
+                self.clear = function () {
+                    self.particles = [];
+                    self.fireworks = [];
+                    self.ctx.clearRect(0, 0, self.cw, self.ch);
+                };
+                self.canvasLoop = function () {
+                    requestAnimFrame(self.canvasLoop, self.canvas);
+                    self.ctx.globalCompositeOperation = 'destination-out';
+                    self.ctx.fillStyle = 'rgba(22,24,35,' + self.clearAlpha / 100 + ')';
+                    self.ctx.fillRect(0, 0, self.cw, self.ch);
+                    if (self.procedure === 0){
+                        self.drawSpirits1();
+                        self.drawStars();
+                    }else if (self.procedure === 1){
+                        self.drawSpirits2();
+                        self.drawStars();
+                    }else if (self.procedure === 2){
+                        self.drawSpirits3();
+                        self.drawStars();
+                    }
+                    else {
+                        self.updateFireworks();
+                        self.updateParticles();
+                        self.drawFireworks();
+                        self.drawParticles();
+                        self.drawStars();
+                        self.drawMountain();
+                    }
+                };
+                self.init();
+                setInterval(self.StateF, 500);
+                setInterval(self.playSound, 1000/60);
+                // setTimeout(self.canvasLoop, 400);
+            };
+            const fworks = new Fireworks();
+        });
+    </script>
+</head>
+<style>
+    *{margin: 0;padding: 0}
+    canvas {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: #392f41;
+    }
+    /*.mask{*/
+    /*    position: fixed;*/
+    /*    top: 0;*/
+    /*    right: 0;*/
+    /*    bottom: 0;*/
+    /*    left: 0;*/
+    /*    background-color: rgba(221, 221, 221, 0.5);*/
+    /*    pointer-events: none;*/
+    /*}*/
+    /*.mask .close_button{*/
+    /*    width: 30%;*/
+    /*    height: 300px;*/
+    /*    position: absolute;*/
+    /*    top: 50%;*/
+    /*    left: 50%;*/
+    /*    -webkit-transform: translate(-50%, -50%);*/
+    /*    transform: translate(-50%, -50%);*/
+    /*    padding: 20px;*/
+    /*    background: #ffffff;*/
+    /*    border-radius: 10px;*/
+    /*    text-align: right;*/
+    /*    pointer-events: none;*/
+    /*}*/
+</style>
+<body>
+<!--<div class="mask" id="mask">-->
+<!--    <div class="close_button"></div>-->
+<!--</div>-->
+<img src="./media/fireworkbase.png" id="fireWorkBase" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts1.png" id="ghost1" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts2.png" id="ghost2" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts3.png" id="ghost3" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts4.png" id="ghost4" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts5.png" id="ghost5" style="display:none" alt=""/>
+<img src="./media/ghosts/ghosts6.png" id="ghost6" style="display:none" alt=""/>
+<div>
+    <canvas id="canvas"></canvas>
+</div>
+</body>
+</html>

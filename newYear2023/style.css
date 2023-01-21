@@ -1,0 +1,98 @@
+*{
+    margin:0;
+    padding:0;
+}
+body{
+    display:flex;
+    justify-content:center;
+    align-items: center;
+    width:100%;
+    height:100vh;
+    /*background:#333;*/
+    overflow:hidden;
+    background-color: #db5a6b;
+}
+.box {
+    font-family: Arial;
+    font-size: 18px;
+    line-height: 30px;
+    font-weight: bold;
+    color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 0 10px white;
+}
+.main{
+    position: fixed;
+    width:300px;
+    height:400px;
+    top: 200px;
+    display:flex;
+    justify-content: center;
+    align-items: end;
+    flex-direction: column;
+    transform:skewY(-10deg);
+}
+.cube{
+    width:300px;
+    height:75px;
+    position:relative;
+    background: #7397ab;
+    right:0;
+    transition:0.2s linear;
+    z-index:var(--z);
+}
+.cube::before{
+    font-family: FontAwesome;
+    content: attr(text-data);
+    width:75px;
+    height:75px;
+    position:absolute;
+    background:#7397ab;
+    left:-75px;
+    filter:brightness(0.7);
+    transform-origin: 100% 0;
+    transform:skewY(45deg);
+    font-size:45px;
+    text-align:center;
+    line-height: 75px;
+    transition: 0.2s linear;
+    color: hsl(calc(var(--z) * 60 * 1deg), 50%, 50%);
+}
+.cube::after{
+    content:"";
+    width:300px;
+    height:75px;
+    position:absolute;
+    background:#7397ab;
+    top:-75px;
+    filter:brightness(0.6);
+    transform-origin: 0 100%;
+    transform:skewX(45deg);
+    transition: 0.2s linear;
+}
+
+.cube:hover{
+    right:100px;
+    background:hsl(calc(var(--z) * 60 * 1deg), 30%, 50%);
+}
+.cube:hover::before,.cube:hover::after{
+    background: hsl(calc(var(--z) * 60 * 1deg), 30%, 50%);
+    color:white;
+}
+.cube:hover a{
+    color:white;
+}
+.cube a{
+    font-family: Arial, Helvetica, sans-serif;
+    position:absolute;
+    width:100%;
+    height:100%;
+    font-size:45px;
+    text-decoration: none;
+    text-transform: uppercase;
+    line-height:75px;
+    text-align: center;
+    color:hsl(calc(var(--z) * 60 * 1deg), 50%,50%);
+    transition: 0.2s linear;
+}
