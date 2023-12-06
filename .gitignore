@@ -1,5 +1,3 @@
-bak
-node_modules
-blogs
-.idea
-
+/.idea/
+/blogs/
+/bak/
