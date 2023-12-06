@@ -16,10 +16,22 @@
 <body id="my-background">
 <ul class="layui-nav layui-bg-cyan">
     <li class="layui-nav-item layui-this"><a href="index.html">首页</a></li>
-    <li class="layui-nav-item"><a href="newYear2023/index.html">新年快乐</a></li>
-    <li class="layui-nav-item"><a href="tetris/react_tetris/index.html">俄罗斯方块</a></li>
-    <li class="layui-nav-item"><a href="tetris/hextris/index.html">hextris</a></li>
-    <li class="layui-nav-item"><a href="javascript:">敬请期待</a></li>
+    <li class="layui-nav-item">
+        <a href="javascript:">新年项目🧨</a>
+        <d class="layui-nav-child">
+            <dd><a href="happyNewYear/index.html">2022🐯</a></dd>
+            <dd><a href="newYear2023/index.html">2023🐰</a></dd>
+        </d>
+    </li>
+    <li class="layui-nav-item">
+        <a href="javascript:">游戏🎮</a>
+        <dl class="layui-nav-child">
+            <dd><a href="tetris/react_tetris/index.html">俄罗斯方块🟦</a></dd>
+            <dd><a href="tetris/hextris/index.html">hextris🔷</a></dd>
+            <dd><a href="happyNewYear/3dCar/index.html">3D小车🚗</a></dd>
+        </dl>
+    </li>
+    <li class="layui-nav-item"><a href="notes/index.html">blogs📖</a></li>
 </ul>
 <br>
 <br>
@@ -99,22 +111,22 @@
 </div>
 <script src="./layui/layui.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>-->
 <script>
-    VANTA.BIRDS({
-        el: "#my-background",
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.00,
-        minWidth: 200.00,
-        scale: 1.00,
-        scaleMobile: 1.00,
-        backgroundColor: 0xffffff,
-        color1: 0xc05050,
-        color2: 0x7ccaf2,
-        backgroundAlpha: 0.6
-    })
+    // VANTA.BIRDS({
+    //     el: "#my-background",
+    //     mouseControls: true,
+    //     touchControls: true,
+    //     gyroControls: false,
+    //     minHeight: 200.00,
+    //     minWidth: 200.00,
+    //     scale: 1.00,
+    //     scaleMobile: 1.00,
+    //     backgroundColor: 0xffffff,
+    //     color1: 0xc05050,
+    //     color2: 0x7ccaf2,
+    //     backgroundAlpha: 0.6
+    // })
     layui.use('laydate', function() {
         const laydate = layui.laydate;
         //常规用

@@ -5,6 +5,11 @@
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/blogs/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/blogs/data" />
+      <excludeFolder url="file://$MODULE_DIR$/blogs/i18n" />
+      <excludeFolder url="file://$MODULE_DIR$/blogs/layouts" />
+      <excludeFolder url="file://$MODULE_DIR$/blogs/static" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
